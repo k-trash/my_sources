@@ -1,6 +1,12 @@
 #include <gtk/gtk.h>
+#include <time.h>
 
-gboolean cdExposeEvent(GtkWidget *widget_, GdkEventExpose *event_, gpointer user_data_);
+gboolean cdExposeEvent(GtkWidget *widget_, gpointer user_data_);
+
+int vel = 2;
+int acc = 2;
+int now_x = 50;
+int now_y = 50;
 
 int main(int argc, char *argv[]){
 	GtkWidget *window;
@@ -14,7 +20,7 @@ int main(int argc, char *argv[]){
 
 	canvas = gtk_drawing_area_new();
 	gtk_container_add(GTK_CONTAINER(window), canvas);
-	g_signal_connect(G_OBJECT(canvas), "expose-event", G_CALLBACK(cdExposeEvent), NULL);
+	g_timeout_add(500, (GSourceFunc)cdExposeEvent, canvas);
 
 	gtk_widget_show_all(window);
 	gtk_main();
@@ -22,7 +28,7 @@ int main(int argc, char *argv[]){
 	return 0;
 }
 
-gboolean cdExposeEvent(GtkWidget *widget_, GdkEventExpose *event_, gpointer user_data_){
+gboolean cdExposeEvent(GtkWidget *widget_, gpointer user_data_){
 	GdkWindow *drawable = widget_ -> window;
 	cairo_t *cr;
 
@@ -30,10 +36,14 @@ gboolean cdExposeEvent(GtkWidget *widget_, GdkEventExpose *event_, gpointer user
 	cairo_set_line_width(cr, 1.0f);
 
 	cairo_set_source_rgb(cr, 0.0f, 0.0f, 0.0f);
-	cairo_rectangle(cr, 20.0f, 20.0f, 40.0f, 40.0f);
+	cairo_rectangle(cr, now_x-10.0f, now_y-10.0f, 20.0f, 20.0f);
 	cairo_stroke(cr);
 
 	cairo_destroy(cr);
 
-	return FALSE;
+	now_x += vel;
+	now_y += 2;
+	vel += acc / 2;
+
+	return TRUE;
 }
