@@ -1,3 +1,5 @@
+//task 6_1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -18,6 +20,7 @@ bool initQue(IntQueue *que_, unsigned int max_);
 bool enqueData(IntQueue *que_, int data_);
 bool dequeData(IntQueue *que_, int *ret_data_);
 void clearQue(IntQueue *que_);
+bool popData(IntQueue *que_, int *ret_data_);
 bool searchData(IntQueue *que_, int key_, int *ret_data_);
 void printQue(IntQueue *que_);
 void termQue(IntQueue *que_);
@@ -26,7 +29,7 @@ int main(int argc, char *argv[]){
 	IntQueue que_4;
 	Menu menu;
 
-	int data;
+	int data, key;
 
 	if(!initQue(&que_4, 4)){
 		puts("キューの生成に失敗しました.");
@@ -36,7 +39,7 @@ int main(int argc, char *argv[]){
 	while(true){
 		printf("現在のデータ数:%i/%u\n", que_4.num, que_4.max);
 		printf("(1)エンキュー (2)デキュー (3)似非ポップ (4)探索 (0)終了:");
-		scanf("%i", &menu);
+		scanf("%i", (int*)&menu);
 
 		if(menu == EXIT){
 			break;
@@ -48,7 +51,6 @@ int main(int argc, char *argv[]){
 				if(!enqueData(&que_4, data)){
 					puts("\aエラー:エンキューに失敗しました.");
 				}
-				printQue(&que_4);
 				break;
 			case DEQUE:
 				if(!dequeData(&que_4, &data)){
@@ -58,9 +60,30 @@ int main(int argc, char *argv[]){
 				}
 				break;
 			case POP:
+				if(!popData(&que_4, &data)){
+					puts("\aエラー:似非ポップに失敗しました.");
+				}else{
+					printf("似非ポップしたデータは%iです.\n", data);
+				}
 				break;
 			case SEARCH:
-				
+				printf("探索するデータ:");
+				scanf("%i", &key);
+				if(searchData(&que_4, key, &data)){
+					printf("そのデータは添字%iの位置にあります.\n", data);
+				}else{
+					puts("\aエラー:探索に失敗しました.");
+				}
+				break;
+		}
+		
+		printQue(&que_4);
+	}
+	
+	termQue(&que_4);
+	
+	return 0;
+}
 
 bool initQue(IntQueue *que_, unsigned int max_){
 	que_->num = que_->front = que_->rear = 0;
@@ -103,10 +126,23 @@ void clearQue(IntQueue *que_){
 	que_->num = que_->front = que_->rear = 0;
 }
 
+bool popData(IntQueue *que_, int *ret_data_){
+	if(que_->num <= 0){
+		return false;
+	}else{
+		que_->num--;
+		if(--(que_->rear) < 0){
+			que_->rear = que_->max-1;
+		}
+		*ret_data_ = que_->que[que_->rear];
+	}
+	return true;
+}
+
 bool searchData(IntQueue *que_, int key_, int *ret_data_){
 	for(int i = 0; i < que_->num; i++){
 		*ret_data_ = (i + que_->front) % (int)que_->max;
-		if(que_->que[*ret_data_] == key){
+		if(que_->que[*ret_data_] == key_){
 			return true;
 		}
 	}
